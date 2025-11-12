@@ -37,8 +37,8 @@ def index():
             session["messages"] = messages
 
         try:
-            response = qa_chain.invoke({"query": user_input})
-            result = response.get("result", "No response")
+            # Fixed: use .run() instead of .invoke()
+            result = qa_chain.run(user_input)
 
             messages.append({"role": "assistant", "content": result})
             session["messages"] = messages
@@ -89,9 +89,8 @@ def recommend():
             return render_template("recommend.html", error="Please enter a query!")
 
     try:
-        # Get response from QA chain
-        response = qa_chain.invoke({"query": user_query})
-        result_text = response.get("result", "").strip()
+        # Fixed: use .run() instead of .invoke()
+        result_text = qa_chain.run(user_query).strip()
 
         # Try to parse "name - url" lines for structured recommendations
         recommendations = []
@@ -129,7 +128,6 @@ def recommend():
             return jsonify({"error": str(e)}), 500
         else:
             return render_template("recommend.html", error=str(e))
-
 
 
 # ==============================
