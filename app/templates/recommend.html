@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SHL Recommendation</title>
+</head>
+<body>
+    <h2>Enter your query to get SHL recommendations</h2>
+
+    <form method="POST">
+        <input type="text" name="query" placeholder="Enter job description or query" size="60"/>
+        <input type="submit" value="Get Recommendations"/>
+    </form>
+
+    {% if error %}
+        <p style="color:red">{{ error }}</p>
+    {% endif %}
+
+    {% if recommendations %}
+        <h3>Recommendations for "{{ query }}"</h3>
+        <ul>
+        {% for rec in recommendations %}
+            <li><a href="{{ rec.url }}" target="_blank">{{ rec.name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% elif query %}
+        <p>No recommendations found for "{{ query }}".</p>
+    {% endif %}
+</body>
+</html>

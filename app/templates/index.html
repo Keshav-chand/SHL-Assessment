@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>SHL Assessment Recommendation System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css" />
+    <style>
+        /* Overall layout */
+        body {
+            background-color: #ffffff;
+            max-width: 850px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1a1a1a;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 25px 0;
+            color: #006b5e;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Chat area */
+        .chat-box {
+            flex-grow: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px 20px;
+            overflow-y: auto;
+            background-color: #f9fafb;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.4;
+            white-space: pre-line;
+        }
+
+        /* User messages */
+        .user {
+            background-color: #007bff;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+            box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Assistant messages */
+        .assistant {
+            background-color: #e9f7ef;
+            color: #1a1a1a;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+            border: 1px solid #c8e6c9;
+            box-shadow: 0 2px 5px rgba(200, 230, 201, 0.3);
+        }
+
+        /* Links inside assistant messages */
+        .assistant a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .assistant a:hover {
+            text-decoration: underline;
+        }
+
+        /* Error message */
+        .error {
+            color: #c0392b;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Input area */
+        form {
+            display: flex;
+            gap: 10px;
+            padding: 12px 15px;
+            background-color: #f0f4f3;
+            border-radius: 10px;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 12px 16px;
+            border-radius: 25px;
+            border: 1px solid #ced4da;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        }
+
+        button, a button {
+            background-color: #28a745;
+            border: none;
+            color: white;
+            padding: 0 22px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        button:hover, a button:hover {
+            background-color: #218838;
+        }
+
+        button:active, a button:active {
+            transform: scale(0.97);
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* Scrollbar styling */
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-box::-webkit-scrollbar-thumb {
+            background-color: #b5b5b5;
+            border-radius: 4px;
+        }
+        .chat-box::-webkit-scrollbar-thumb:hover {
+            background-color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>SHL Assessment Recommendation System</h1>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <div class="chat-box" id="chat-box">
+        {% for msg in messages %}
+            <div class="message {{ msg.role }}" data-role="{{ msg.role }}">
+                {{ msg.content | nl2br }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="POST" autocomplete="off">
+        <input type="text" id="prompt" name="prompt" placeholder="Type your query here..." required />
+        <button type="submit">Submit</button>
+        <a href="{{ url_for('clear') }}"><button type="button">Clear Chat</button></a>
+    </form>
+
+    <script>
+        // Convert plain URLs in assistant messages to clickable links
+        function linkify(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+            });
+        }
+
+        document.querySelectorAll('.message.assistant').forEach(msgDiv => {
+            msgDiv.innerHTML = linkify(msgDiv.innerHTML);
+        });
+
+        // Auto-scroll to bottom
+        const chatBox = document.getElementById('chat-box');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    </script>
+</body>
+</html>
