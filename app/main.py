@@ -77,7 +77,7 @@ def recommend():
     if request.method == "GET":
         return render_template("recommend.html")
 
-    # Detect JSON vs form submission
+    user_query = None
     if request.is_json:
         data = request.get_json()
         if not data or "query" not in data:
@@ -89,41 +89,47 @@ def recommend():
             return render_template("recommend.html", error="Please enter a query!")
 
     try:
+        # Get response from QA chain
         response = qa_chain.invoke({"query": user_query})
-        result_text = response.get("result", "")
+        result_text = response.get("result", "").strip()
 
+        # Try to parse "name - url" lines for structured recommendations
         recommendations = []
-
-        # Only keep clean "name - url" lines
         for line in result_text.split("\n"):
             line = line.strip()
             if not line:
                 continue
-            # Skip lines without URLs
-            if "http" not in line:
-                continue
-            # Split name and URL
-            if "-" in line:
+            # Only consider lines with a URL
+            if "http" in line and "-" in line:
                 name, url = line.split("-", 1)
                 name, url = name.strip(), url.strip()
                 if name and url:
                     recommendations.append({"name": name, "url": url})
 
-        # Limit to top 10 results
+        # Limit to top 10
         recommendations = recommendations[:10]
 
-        # Return JSON if it's an API request
+        # If JSON request, return JSON
         if request.is_json:
-            return jsonify({"recommendations": recommendations}), 200
+            if recommendations:
+                return jsonify({"recommendations": recommendations}), 200
+            else:
+                return jsonify({"answer": result_text}), 200
 
-        # Otherwise render HTML form
-        return render_template("recommend.html", recommendations=recommendations, query=user_query)
+        # Render HTML template
+        return render_template(
+            "recommend.html",
+            query=user_query,
+            recommendations=recommendations if recommendations else None,
+            answer=result_text if not recommendations else None
+        )
 
     except Exception as e:
         if request.is_json:
             return jsonify({"error": str(e)}), 500
         else:
             return render_template("recommend.html", error=str(e))
+
 
 
 # ==============================

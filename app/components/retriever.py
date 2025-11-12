@@ -9,7 +9,7 @@ from app.common.custom_exception import CustomException
 
 logger = get_logger(__name__)
 
-CUSTOM_PROMPT_TEMPLATE = """Given the job description or query below, recommend the 5-10 most relevant SHL assessments from the catalog. Include the assessment name and the URL.
+CUSTOM_PROMPT_TEMPLATE = """Given the job description or query below, recommend the 6-10 most relevant SHL assessments from the catalog. Include the assessment name and the URL.
 
 Context:
 {context}

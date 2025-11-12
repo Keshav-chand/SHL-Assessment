@@ -22,6 +22,9 @@
             <li><a href="{{ rec.url }}" target="_blank">{{ rec.name }}</a></li>
         {% endfor %}
         </ul>
+    {% elif answer %}
+        <h3>Answer for "{{ query }}"</h3>
+        <p>{{ answer | nl2br }}</p>
     {% elif query %}
         <p>No recommendations found for "{{ query }}".</p>
     {% endif %}
