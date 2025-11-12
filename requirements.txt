@@ -6,3 +6,4 @@ pypdf
 huggingface_hub
 flask
 python-dotenv
+langchain-groq
