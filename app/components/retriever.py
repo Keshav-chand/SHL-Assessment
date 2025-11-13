@@ -23,16 +23,38 @@ Answer:
 def set_custom_prompt():
     return PromptTemplate(template=CUSTOM_PROMPT_TEMPLATE, input_variables=["context", "question"])
 
+
+
+logger = get_logger(__name__)
+
+CUSTOM_PROMPT_TEMPLATE = """Given the job description or query below, recommend the 6-10 most relevant SHL assessments from the catalog. Include the assessment name and the URL.
+
+Context:
+{context}
+
+Query:
+{question}
+
+Answer:
+"""
+
+def set_custom_prompt():
+    return PromptTemplate(template=CUSTOM_PROMPT_TEMPLATE, input_variables=["context", "question"])
+
 def create_qa_chain():
     try:
         logger.info("Loading vector store for context")
         db = load_vector_store()
 
+        # ✅ If no vector store exists, generate it from documents
         if db is None:
-            raise CustomException("Vector store not present or empty")
+            logger.warning("Vector store not found. Creating a new one...")
+            text_chunks = load_documents()  # Your function to load and split docs
+            if not text_chunks:
+                raise CustomException("No documents found to build vector store.")
+            db = save_vector_store(text_chunks)
 
         llm = load_llm()
-
         if llm is None:
             raise CustomException("LLM not loaded")
 
@@ -43,10 +65,11 @@ def create_qa_chain():
             return_source_documents=False,
             chain_type_kwargs={'prompt': set_custom_prompt()}
         )
+
         logger.info("Successfully created the QA chain")
         return qa_chain
 
     except Exception as e:
         error_message = CustomException("Failed to create QA chain", e)
         logger.error(str(error_message))
-        return None   # <-- 🔥 this is the critical fix
+        return None

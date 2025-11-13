@@ -37,8 +37,9 @@ def index():
             session["messages"] = messages
 
         try:
-            # Fixed: use .run() instead of .invoke()
-            result = qa_chain.run(user_input)
+            # ✅ Use .invoke() instead of deprecated .run()
+            response = qa_chain.invoke({"query": user_input})
+            result = response.get("result", response)
 
             messages.append({"role": "assistant", "content": result})
             session["messages"] = messages
@@ -50,6 +51,7 @@ def index():
         return redirect(url_for("index"))
 
     return render_template("index.html", messages=session.get("messages", []))
+
 
 
 # ==============================
@@ -89,8 +91,9 @@ def recommend():
             return render_template("recommend.html", error="Please enter a query!")
 
     try:
-        # Fixed: use .run() instead of .invoke()
-        result_text = qa_chain.run(user_query).strip()
+        # ✅ Use .invoke() instead of deprecated .run()
+        response = qa_chain.invoke({"query": user_query})
+        result_text = response.get("result", response).strip()
 
         # Try to parse "name - url" lines for structured recommendations
         recommendations = []
@@ -128,6 +131,7 @@ def recommend():
             return jsonify({"error": str(e)}), 500
         else:
             return render_template("recommend.html", error=str(e))
+
 
 
 # ==============================
