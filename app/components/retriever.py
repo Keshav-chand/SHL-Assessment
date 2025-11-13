@@ -49,3 +49,4 @@ def create_qa_chain():
     except Exception as e:
         error_message = CustomException("Failed to create QA chain", e)
         logger.error(str(error_message))
+        return None   # <-- 🔥 this is the critical fix
